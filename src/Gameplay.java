@@ -4,11 +4,11 @@ import java.util.*;
 public class Gameplay {
 
 
-    public static void main(String[] args) {
 
 
+  public static void main(String[] args) {
 
-
+        //Test
 
         // Eingabe der Anzahl der Palmons
       System.out.println("Bitte geben Sie die Anzahl der Palmons ein: ");
@@ -21,16 +21,9 @@ public class Gameplay {
 
       if (eingabewiesollenPalmonsAusgewähltWerden.equals("random")){
           generiereRandomTeam();
-          generiereRandomTeam();
       } else if (eingabewiesollenPalmonsAusgewähltWerden.equals("id")) {
         nachIDbestimmen();
       }
-
-
-      // Eingabe des Gewünschten Pokemons
-   // int gesuchtesPalmon = 12; // Hier Entscheide ich welche Palmons ich auslesen will
-   // SenderEmpfänger.setZahl(gesuchtesPalmon);
-
 
 
     }
