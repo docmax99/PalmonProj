@@ -9,6 +9,7 @@ public class Gameplay {
   public static void main(String[] args) {
 
         //Das ist ein test ob der Push funkrioniwer
+        //Das ist ein test ob der Push funkrioniwer
 
         // Eingabe der Anzahl der Palmons
       System.out.println("Bitte geben Sie die Anzahl der Palmons ein: ");
