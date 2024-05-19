@@ -107,7 +107,11 @@ public class Gameplay {
 
             // Kampf starten
 
+
             startFight(MyTeamRandom, GegnerTeamRandom);
+            startFight(GegnerTeamRandom, MyTeamRandom);
+            startFight(MyTeamRandom, GegnerTeamRandom);
+            startFight(GegnerTeamRandom, MyTeamRandom);
 
 
         } else if (eingabewiesollenPalmonsAusgewähltWerden.equals("id")) {
@@ -246,6 +250,9 @@ public class Gameplay {
                 System.out.println("Falsche Eingabe");
             }
             System.out.println("Der Schaden des eigenen Palmons ist: "+DamageMyPalmon);
+            int AttackMy = DamageMyPalmon-FirstGegnerPalmon.getDefense();
+            FirstGegnerPalmon.setHp(FirstGegnerPalmon.getHp()-AttackMy);
+            System.out.println("Das Leben des Gegner Palmons beträgt: "+FirstGegnerPalmon.getHp());
 
 
 
@@ -288,6 +295,7 @@ public class Gameplay {
                     int randomNumber = random.nextInt(100)+1;
                     if(randomNumber <= moveAccuracy) {
                         System.out.println("Der Move hat getroffen");
+                        DamageGegnerPalmon = FirstGegnerPalmon.getAttack()+firstMove.getDamage();
                     } else{System.out.println("Der Move hat leider nicht getroffen");DamageGegnerPalmon = FirstGegnerPalmon.getAttack();;}
                 } else {
                     System.out.println("Keine Moves vorhanden");
@@ -302,6 +310,7 @@ public class Gameplay {
                     int randomNumber = random.nextInt(100)+1;
                     if(randomNumber <= moveAccuracy) {
                         System.out.println("Der Move hat getroffen");
+                        DamageGegnerPalmon = FirstGegnerPalmon.getAttack()+SecMove.getDamage();
                     } else{System.out.println("Der Move hat leider nicht getroffen");DamageGegnerPalmon = FirstGegnerPalmon.getAttack();;}
                 } else {
                     System.out.println("Keine Moves vorhanden");
@@ -316,6 +325,7 @@ public class Gameplay {
                     int randomNumber = random.nextInt(100)+1;
                     if(randomNumber <= moveAccuracy) {
                         System.out.println("Der Move hat getroffen");
+                        DamageGegnerPalmon = FirstGegnerPalmon.getAttack()+ThirdMove.getDamage();
                     } else{System.out.println("Der Move hat leider nicht getroffen");DamageGegnerPalmon = FirstGegnerPalmon.getAttack();;}
                 } else {
                     System.out.println("Keine Moves vorhanden");
@@ -330,6 +340,7 @@ public class Gameplay {
                     int randomNumber = random.nextInt(100)+1;
                     if(randomNumber <= moveAccuracy) {
                         System.out.println("Der Move hat getroffen");
+                        DamageGegnerPalmon = FirstGegnerPalmon.getAttack()+LastMove.getDamage();
                     } else{System.out.println("Der Move hat leider nicht getroffen");DamageGegnerPalmon = FirstGegnerPalmon.getAttack();;}
                 } else {
                     System.out.println("Keine Moves vorhanden");
@@ -340,6 +351,9 @@ public class Gameplay {
             }
 
             System.out.println("Der Schaden des Gegner Palmons ist: "+DamageGegnerPalmon);
+            int AttackGegner = DamageGegnerPalmon-FirstMyPalmon.getDefense();
+            FirstMyPalmon.setHp(FirstMyPalmon.getHp()-AttackGegner);
+            System.out.println("Das Leben meines  Palmons beträgt: "+FirstMyPalmon.getHp());
 
         }
 
