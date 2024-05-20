@@ -1,38 +1,54 @@
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 
 public class CSVreader {
 
 
-    String path1 = "/Users/louis/IdeaProjects/Palmon/src/CSVinput/palmon.csv";
-    String path2 = "/Users/louis/IdeaProjects/Palmon/src/CSVinput/moves.csv";
-    String path3 = "/Users/louis/IdeaProjects/Palmon/src/CSVinput/palmon_move.csv";
-    String path4 = "/Users/louis/IdeaProjects/Palmon/src/CSVinput/effectivity.csv";
 
-    public String getPath1() {
-        return path1;
+    private String relativePath_palmon = "src/CSVinput/palmon.csv";
+    private String relativePath_moves = "src/CSVinput/moves.csv";
+    private String relativePath_palmon_move = "src/CSVinput/palmon_move.csv";
+    private String relativePath_effectivity = "src/CSVinput/effectivity.csv";
+
+    private final Path absolutePath_palmon = Paths.get(relativePath_palmon).toAbsolutePath();
+    private final Path absolutePath_moves = Paths.get(relativePath_moves).toAbsolutePath();
+    private final Path absolutePath_palmon_move = Paths.get(relativePath_palmon_move).toAbsolutePath();
+    private final Path absolutePath_effectivity = Paths.get(relativePath_effectivity).toAbsolutePath();
+
+
+
+
+    public String getPath_palmon(){
+        return absolutePath_palmon.toString();
     }
 
-    public String getPath2() {
-        return path2;
+    public String getPath_moves(){
+        return absolutePath_moves.toString();
     }
 
-    public String getPath3() {
-        return path3;
+    public String getPath_palmon_move(){
+        return absolutePath_palmon_move.toString();
     }
 
-    public String getPath4() {
-        return path4;
+    public String getPath_effectivity(){
+        return absolutePath_effectivity.toString();
     }
 
 
 
 
-    public static List<Palmon> ladePalmonsAusCsv(String path1) {
+    public static List<Palmon> ladePalmonsAusCsv(String path) {
         List<Palmon> registerderPalmonsList = new ArrayList<>();
+        String relativePath_palmon = "CSVinput/palmon.csv";
+        Path file = Paths.get(relativePath_palmon).toAbsolutePath();
+
+
+
         try {
-            BufferedReader br = new BufferedReader(new FileReader(path1));
+            BufferedReader br = new BufferedReader(new FileReader(path));
             br.readLine();
             String line;
             while ((line = br.readLine()) != null) {
@@ -55,10 +71,10 @@ public class CSVreader {
         return registerderPalmonsList;
     }
 
-    public static List<Moves> ladeMovesAusCsv(String path2){
+    public static List<Moves> ladeMovesAusCsv(String path){
         List<Moves> registerderMovesList =new ArrayList<>();
         try{
-            BufferedReader br = new BufferedReader(new FileReader(path2));
+            BufferedReader br = new BufferedReader(new FileReader(path));
             br.readLine();
             String line;
             while ((line = br.readLine()) != null) {
@@ -80,10 +96,10 @@ public class CSVreader {
         return registerderMovesList;
     }
 
-    public static List<Palmon_move> ladePalmon_moveAusCsv(String path3) {
+    public static List<Palmon_move> ladePalmon_moveAusCsv(String path) {
         List<Palmon_move> registerderPalmon_moveList = new ArrayList<>();
         try{
-            BufferedReader br = new BufferedReader(new FileReader(path3));
+            BufferedReader br = new BufferedReader(new FileReader(path));
             br.readLine();
             String line;
             while ((line = br.readLine()) != null){
@@ -106,10 +122,10 @@ public class CSVreader {
     }
 
 
-    public static List<Effectivity> ladeEffectivityAusCsv(String path4) {
+    public static List<Effectivity> ladeEffectivityAusCsv(String path) {
         List<Effectivity> registerderEffectivityList = new ArrayList<>();
         try {
-            BufferedReader br = new BufferedReader(new FileReader(path4));
+            BufferedReader br = new BufferedReader(new FileReader(path));
             br.readLine();
             String line;
             while ((line = br.readLine()) != null) {

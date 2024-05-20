@@ -7,8 +7,8 @@ public class Platzhalter {
 
     public static void main(String[] args) {
 
-
-        List<Palmon> palmons = CSVreader.ladePalmonsAusCsv("/Users/louis/IdeaProjects/Palmon/src/CSVinput/palmon.csv");
+        CSVreader reader = new CSVreader();
+        List<Palmon> palmons = CSVreader.ladePalmonsAusCsv(reader.getPath_palmon());
         Map<Integer, Palmon> palmonMap = ladePalmonsInHashMap(palmons);
         Map<String, Palmon> palmonMaptyp = ladePalmonsInHashMapTyp(palmons);
 
