@@ -82,6 +82,14 @@ public class Palmon {
         this.speed = speed;
     }
 
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
+
     private Integer id;
     private String Name;
     private Integer height;
@@ -92,6 +100,7 @@ public class Palmon {
     private Integer attack;
     private Integer defense;
     private Integer speed;
+    private Integer level;
 
     public Palmon(Integer _id, String _name, Integer _height, Integer _weight, String _Typ1, String _Typ2, Integer _hp, Integer _attack, Integer _defense, Integer _speed){
 

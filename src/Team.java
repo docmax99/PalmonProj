@@ -29,7 +29,7 @@ public class Team {
         return teamMember.get(id);
     }
 
-    // Platz für weiter add ons
+
 
 
 }

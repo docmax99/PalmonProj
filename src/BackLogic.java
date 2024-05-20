@@ -5,15 +5,27 @@ public class BackLogic {
     private final CSVreader reader;
     private final List<Palmon> palmons;
     private final Map<Integer, List<Moves>> palmonMovesMap;
+    private final Map<String, Map<String, Double>> effectivityMap;
 
     public BackLogic() {
         reader = new CSVreader();
         palmons = CSVreader.ladePalmonsAusCsv(reader.getPath_palmon());
         palmonMovesMap = getPalmonMovesMap(CSVreader.ladePalmon_moveAusCsv(reader.getPath_palmon_move()), CSVreader.ladeMovesAusCsv(reader.getPath_moves()));
+        effectivityMap = loadEffectivity();
     }
 
     private List<Palmon> loadPalmons() {
         return palmons;
+    }
+
+    private Map<String , Map<String,Double>> loadEffectivity(){
+        List<Effectivity> effectivities = CSVreader.ladeEffectivityAusCsv(reader.getPath_effectivity());
+        Map<String, Map<String, Double>> effectivityMap = new HashMap<>();
+
+        for (Effectivity effectivity : effectivities){
+            effectivityMap.computeIfAbsent(effectivity.getTarget_type(), k->new HashMap<>()).put(effectivity.getInitial_type(), effectivity.getDamage_factor()/100.0);
+        }
+        return effectivityMap;
     }
 
     private Team createTeam(int AnzahlDerPalmons, List<Palmon> palmons, String Kriterium) {
@@ -186,10 +198,9 @@ public class BackLogic {
 
         // Sieger ermitteln
         if (GegnerTeam.getTeamMember().isEmpty()) {
-            System.out.println("Herzlichen Glückwunsch! Du hast gewonnen!");
             MyTeam.printTeamMember();
         } else {
-            System.out.println("Der Gegner hat gewonnen! Dein Team wurde besiegt.");
+            GegnerTeam.printTeamMember();
         }
     }
 
@@ -236,11 +247,17 @@ public class BackLogic {
             if (palmon1.getHp() <= 0) {
                 System.out.println(BLUE + palmon1.getName() + RESET + " ist besiegt!");
                 palmon1 = getNextPalmon(team1);
+                if (palmon1 != null) {
+                    System.out.println("Wechsel zu " + BLUE + palmon1.getName() + RESET);
+                }
             }
 
             if (palmon2.getHp() <= 0) {
                 System.out.println(RED + palmon2.getName() + RESET + " ist besiegt!");
                 palmon2 = getNextPalmon(team2);
+                if (palmon2 != null) {
+                    System.out.println("Wechsel zu " + RED + palmon2.getName() + RESET);
+                }
             }
         }
 
@@ -300,7 +317,41 @@ public class BackLogic {
         System.out.println(attacker.getName() + " greift " + defender.getName() + " mit " + selectedMove.getName() + " an!");
 
         if (random.nextInt(100) < selectedMove.getAccuracy()) {
-            int damage = attacker.getAttack() + selectedMove.getDamage() - defender.getDefense();
+
+            // Hier werden die Typen des Angreifers und des Verteidigers abgefragt bis jetzt nur Typ1
+            String attackType = attacker.getTyp1();
+            String defenseType = defender.getTyp1();
+            String attackType2 = attacker.getTyp2();
+            String defenseType2 = defender.getTyp2();
+
+            // Denn Faktor bestimmen
+            double factor = 1.0;
+            if (effectivityMap.containsKey(attackType) && effectivityMap.get(attackType).containsKey(defenseType)) {
+                factor = effectivityMap.get(attackType).get(defenseType);
+            }
+            if (attackType2 != null && !attackType2.isEmpty()){
+                if (effectivityMap.containsKey(attackType2) && effectivityMap.get(attackType2).containsKey(defenseType)) {
+                    factor = factor * effectivityMap.get(attackType2).get(defenseType);
+                }
+            }
+            if (defenseType2 != null && !defenseType2.isEmpty()){
+                if (effectivityMap.containsKey(attackType) && effectivityMap.get(attackType).containsKey(defenseType2)) {
+                    factor = factor * effectivityMap.get(attackType).get(defenseType2);
+                }
+                if (attackType2 != null && !attackType2.isEmpty()){
+                    if (effectivityMap.containsKey(attackType2) && effectivityMap.get(attackType2).containsKey(defenseType2)) {
+                        factor = factor * effectivityMap.get(attackType2).get(defenseType2);
+                    }
+                }
+            }
+
+
+
+
+
+            System.out.println("Faktor: " + factor); // Wieder weck machen
+            int damage = (int) ((attacker.getAttack() + selectedMove.getDamage() - defender.getDefense()) * factor);
+
             if (damage < 0) damage = 0;
             defender.setHp(defender.getHp() - damage);
             System.out.println(defender.getName() + " nimmt " + damage + " Schaden. Verbleibende HP: " + defender.getHp());
