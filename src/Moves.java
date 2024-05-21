@@ -52,9 +52,17 @@ public class Moves {
     public void setType(String type) {
         Type = type;
     }
+    public Integer getLearned_on_level() {
+        return learned_on_level;
+    }
+
+    public void setLearned_on_level(Integer learned_on_level) {
+        this.learned_on_level = learned_on_level;
+    }
 
     private Integer accuracy;
     private String Type;
+    private Integer learned_on_level;
 
     public Moves(Integer _id, String _Name, Integer _Damage, Integer max_usages, Integer _accuracy, String _Type){
         this.id = _id;

@@ -1,16 +1,19 @@
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class BackLogic {
 
     private final CSVreader reader;
     private final List<Palmon> palmons;
-    private final Map<Integer, List<Moves>> palmonMovesMap;
+    private final Map<Integer, List<Palmon_move>> palmonMovesMap;
+    private final Map<Integer, Moves> movesMap;
     private final Map<String, Map<String, Double>> effectivityMap;
 
     public BackLogic() {
         reader = new CSVreader();
         palmons = CSVreader.ladePalmonsAusCsv(reader.getPath_palmon());
-        palmonMovesMap = getPalmonMovesMap(CSVreader.ladePalmon_moveAusCsv(reader.getPath_palmon_move()), CSVreader.ladeMovesAusCsv(reader.getPath_moves()));
+        palmonMovesMap = getPalmonMovesMap(CSVreader.ladePalmon_moveAusCsv(reader.getPath_palmon_move()));
+        movesMap = CSVreader.ladeMovesAusCsv(reader.getPath_moves()).stream().collect(Collectors.toMap(Moves::getId, move -> move));
         effectivityMap = loadEffectivity();
     }
 
@@ -18,17 +21,18 @@ public class BackLogic {
         return palmons;
     }
 
-    private Map<String , Map<String,Double>> loadEffectivity(){
+    private Map<String, Map<String, Double>> loadEffectivity() {
         List<Effectivity> effectivities = CSVreader.ladeEffectivityAusCsv(reader.getPath_effectivity());
         Map<String, Map<String, Double>> effectivityMap = new HashMap<>();
 
-        for (Effectivity effectivity : effectivities){
-            effectivityMap.computeIfAbsent(effectivity.getTarget_type(), k->new HashMap<>()).put(effectivity.getInitial_type(), effectivity.getDamage_factor()/100.0);
+        for (Effectivity effectivity : effectivities) {
+            effectivityMap.computeIfAbsent(effectivity.getTarget_type(), k -> new HashMap<>())
+                    .put(effectivity.getInitial_type(), effectivity.getDamage_factor() / 100.0);
         }
         return effectivityMap;
     }
 
-    private Team createTeam(int AnzahlDerPalmons, List<Palmon> palmons, String Kriterium) {
+    private Team createTeam(int AnzahlDerPalmons, List<Palmon> palmons, String Kriterium, int minLevel, int maxLevel) {
         Team team = new Team();
         Scanner sc = new Scanner(System.in);
 
@@ -37,22 +41,32 @@ public class BackLogic {
                 Random rand = new Random();
                 while (team.getTeamMember().size() < AnzahlDerPalmons) {
                     int randomId = rand.nextInt(palmons.size());
-                    addPalmonToTeamById(palmons, team, randomId);
+                    Palmon palmon = palmons.get(randomId);
+                    if (!team.getTeamMember().containsKey(palmon.getId())) {
+                        setRandomLevel(palmon, minLevel, maxLevel);
+                        team.addMember(palmon);
+                    }
                 }
                 break;
             case "id":
                 System.out.println("Bitte geben Sie " + AnzahlDerPalmons + " IDs der gewünschten Palmons ein: ");
                 while (team.getTeamMember().size() < AnzahlDerPalmons) {
                     int eingabeID = getValidId(sc, palmons);
-                    addPalmonToTeamById(palmons, team, eingabeID);
+                    //Palmon palmon = getPalmonById(palmons, eingabeID);
+                    Palmon palmon = palmons.stream().filter(p -> p.getId() == eingabeID).findFirst().orElse(null);
+                    if (palmon != null && !team.getTeamMember().containsKey(palmon.getId())) {
+                        setRandomLevel(palmon, minLevel, maxLevel);
+                        team.addMember(palmon);
+                    }
                 }
                 break;
             case "typ":
                 System.out.println("Bitte geben Sie den Typ der gewünschten Palmons ein: ");
-                String eingabeTyp = sc.next();
+                String eingabeTyp = getValidTyp(sc, palmons);
                 while (team.getTeamMember().size() < AnzahlDerPalmons) {
                     for (Palmon palmon : palmons) {
                         if (palmon.getTyp1().equalsIgnoreCase(eingabeTyp) && !team.getTeamMember().containsKey(palmon.getId())) {
+                            setRandomLevel(palmon, minLevel, maxLevel);
                             team.addMember(palmon);
                             break;
                         }
@@ -65,6 +79,25 @@ public class BackLogic {
         }
 
         return team;
+    }
+
+    private String getValidTyp(Scanner scanner, List<Palmon> palmons){
+        String eingabeTyp;
+        while(true){
+            try {
+                eingabeTyp = scanner.next().toLowerCase();
+                if (eingabeTyp.equals("bug")||eingabeTyp.equals("dark")||eingabeTyp.equals("dragon")||eingabeTyp.equals("electric")||eingabeTyp.equals("fairy")||eingabeTyp.equals("fighting")||eingabeTyp.equals("fire")||eingabeTyp.equals("flying")||eingabeTyp.equals("ghost")||eingabeTyp.equals("grass")||eingabeTyp.equals("ground")||eingabeTyp.equals("ice")||eingabeTyp.equals("normal")||eingabeTyp.equals("poison")||eingabeTyp.equals("psychic")||eingabeTyp.equals("rock")||eingabeTyp.equals("steel")||
+                        eingabeTyp.equals("water")){
+                        break;
+                } else {
+                    System.out.println("Ungültiger Typ eingegeben. Bitte versuchen Sie es erneut.");
+                }
+
+            }catch (NumberFormatException e){
+                System.out.println("Ungültige Eingabe. Bitte geben Sie einen gültigen Typ ein.");
+            }
+        }
+        return eingabeTyp;
     }
 
     private int getValidId(Scanner sc, List<Palmon> palmons) {
@@ -84,6 +117,13 @@ public class BackLogic {
         return eingabeID;
     }
 
+    private void setRandomLevel(Palmon palmon, int minLevel, int maxLevel) {
+        Random random = new Random();
+        int level = random.nextInt((maxLevel - minLevel) + 1) + minLevel;
+        palmon.setLevel(level);
+        System.out.println("Palmon ID " + palmon.getId() + " wurde auf Level " + level + " gesetzt."); // Debug-Ausgabe
+    }
+
     private boolean isValidId(List<Palmon> palmons, int id) {
         for (Palmon palmon : palmons) {
             if (palmon.getId() == id) {
@@ -93,14 +133,14 @@ public class BackLogic {
         return false;
     }
 
-    private void addPalmonToTeamById(List<Palmon> palmons, Team team, int id) {
-        for (Palmon palmon : palmons) {
-            if (palmon.getId() == id && !team.getTeamMember().containsKey(palmon.getId())) {
-                team.addMember(palmon);
-                break;
-            }
-        }
-    }
+//    private void addPalmonToTeamById(List<Palmon> palmons, Team team, int id) {
+//        for (Palmon palmon : palmons) {
+//            if (palmon.getId() == id && !team.getTeamMember().containsKey(palmon.getId())) {
+//                team.addMember(palmon);
+//                break;
+//            }
+//        }
+//    }
 
     public void startAbfragen() throws InterruptedException {
         final String RESET = "\u001B[0m"; // Setzt die Farbe zurück
@@ -134,7 +174,7 @@ public class BackLogic {
             System.out.println("Aus wie vielen Palmons soll dein Team bestehen: ");
             try {
                 AnzahlPalmonsimEigenenTeam = Integer.parseInt(sc.next());
-                if (AnzahlPalmonsimEigenenTeam > 1194) {
+                if (AnzahlPalmonsimEigenenTeam > 1092 || AnzahlPalmonsimEigenenTeam < 1) {
                     System.out.println("Leider haben wir nicht genügend Palmons für so ein gewaltiges Event :-( ");
                 } else {
                     break;
@@ -155,8 +195,41 @@ public class BackLogic {
             }
         }
 
+
+        int minLevel;
+        while (true){
+            System.out.println("Geben Sie das minimale Level ein: ");
+            try {
+                minLevel = Integer.parseInt(sc.next());
+                if (minLevel < 1 || minLevel > 99) {
+                    System.out.println("Ungültige Eingabe. Bitte eine Zahl zwischen 1 und 99 eingeben.");
+                } else {
+                    break;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Ungültige Eingabe. Bitte eine Zahl eingeben.");
+            }
+        }
+
+
+        int maxLevel;
+        while (true){
+            System.out.println("Geben Sie das maximale Level ein: ");
+            try {
+            maxLevel = Integer.parseInt(sc.next());
+            if (maxLevel < minLevel || maxLevel > 100){
+                System.out.println("Ungültige Eingabe. Bitte eine Zahl zwischen dem MiniLevel und 100 eingeben.");
+            } else {
+                break;
+            }
+
+            }catch (NumberFormatException e){
+                System.out.println("Ungültige Eingabe. Bitte geben sie eine Zahl ein: ");
+            }
+        }
+
         List<Palmon> palmons = loadPalmons();
-        Team MyTeam = createTeam(AnzahlPalmonsimEigenenTeam, palmons, eingabewiesollenPalmonsAusgewähltWerden);
+        Team MyTeam = createTeam(AnzahlPalmonsimEigenenTeam, palmons, eingabewiesollenPalmonsAusgewähltWerden, minLevel, maxLevel);
         MyTeam.printTeamMember();
 
         System.out.println("Wie soll das Gegner Team generiert werden, random oder selbstgewählt?");
@@ -178,7 +251,7 @@ public class BackLogic {
                 System.out.println("Wie viele Palmons soll das Gegnerteam haben?");
                 try {
                     AnzahlPGegnerTeam = Integer.parseInt(sc.next());
-                    if (AnzahlPGegnerTeam > 1194) {
+                    if (AnzahlPGegnerTeam > 1092 || AnzahlPGegnerTeam < 1) {
                         System.out.println("Leider haben wir nicht genügend Palmons für so ein gewaltiges Event :-( ");
                     } else {
                         break;
@@ -190,7 +263,7 @@ public class BackLogic {
         }
 
         System.out.println("Anzahl der Palmons im Gegner Team: " + AnzahlPGegnerTeam);
-        Team GegnerTeam = createTeam(AnzahlPGegnerTeam, palmons, "random");
+        Team GegnerTeam = createTeam(AnzahlPGegnerTeam, palmons, "random", minLevel, maxLevel);
         GegnerTeam.printTeamMember();
 
         // Kampf starten
@@ -198,21 +271,20 @@ public class BackLogic {
 
         // Sieger ermitteln
         if (GegnerTeam.getTeamMember().isEmpty()) {
+            System.out.println("Herzlichen Glückwunsch! Du hast gewonnen!");
             MyTeam.printTeamMember();
         } else {
+            System.out.println("Der Gegner hat gewonnen! Dein Team wurde besiegt.");
             GegnerTeam.printTeamMember();
         }
     }
 
-    private Map<Integer, List<Moves>> getPalmonMovesMap(List<Palmon_move> palmon_moves, List<Moves> moves) {
-        Map<Integer, List<Moves>> palmonMovesMap = new HashMap<>();
+    private Map<Integer, List<Palmon_move>> getPalmonMovesMap(List<Palmon_move> palmon_moves) {
+        Map<Integer, List<Palmon_move>> palmonMovesMap = new HashMap<>();
 
-        for (Palmon_move palmon_move : palmon_moves) {
-            int palmonId = palmon_move.getPalmon_id();
-            Moves move = moves.stream().filter(m -> m.getId().equals(palmon_move.getMove_id())).findFirst().orElse(null);
-            if (move != null) {
-                palmonMovesMap.computeIfAbsent(palmonId, k -> new ArrayList<>()).add(move);
-            }
+        for (Palmon_move palmonMove : palmon_moves) {
+            int palmonId = palmonMove.getPalmon_id();
+            palmonMovesMap.computeIfAbsent(palmonId, k -> new ArrayList<>()).add(palmonMove);
         }
 
         return palmonMovesMap;
@@ -275,32 +347,44 @@ public class BackLogic {
     private void performAttack(Palmon attacker, Palmon defender, boolean isPlayerControlled) {
         Scanner sc = new Scanner(System.in);
         Random random = new Random();
-        List<Moves> moves = palmonMovesMap.get(attacker.getId());
+        List<Palmon_move> palmonMoves = palmonMovesMap.get(attacker.getId());
 
-        if (moves == null || moves.isEmpty()) {
+        if (palmonMoves == null || palmonMoves.isEmpty()) {
             System.out.println("Keine Moves vorhanden für " + attacker.getName());
             return;
         }
 
         // Sortieren der Moves nach Schaden in absteigender Reihenfolge und Auswahl der Top 4
-        List<Moves> topMoves = moves.stream()
-                .sorted(Comparator.comparing(Moves::getDamage).reversed()).limit(4)
+        // Updated code for selecting possible moves based on level
+
+        List<Moves> possibleMoves = palmonMovesMap.get(attacker.getId()).stream()
+                .filter(palmonMove -> palmonMove.getLearned_on_level() <= attacker.getLevel())
+                .map(palmonMove -> movesMap.get(palmonMove.getMove_id()))
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(Moves::getDamage).reversed())
+                .limit(4)
                 .toList();
+
+
+        if (possibleMoves.isEmpty()) {
+            System.out.println(attacker.getName() + " hat keine Moves die er einsetzen kann.");
+            return;
+        }
 
         Moves selectedMove;
 
         if (isPlayerControlled) {
             System.out.println(attacker.getName() + "s verfügbare Moves:");
-            for (int i = 0; i < topMoves.size(); i++) {
-                Moves move = topMoves.get(i);
-                System.out.println((i + 1) + ". " + move.getName() + " - Schaden: " + move.getDamage() + ", Genauigkeit: " + move.getAccuracy());
+            for (int i = 0; i < possibleMoves.size(); i++) {
+                Moves move = possibleMoves.get(i);
+                System.out.println((i + 1) + ". " + move.getName() + " - Schaden: " + move.getDamage() + ", Genauigkeit: " + move.getAccuracy() + ", Level: " + move.getLearned_on_level());
             }
             System.out.println("Wähle eine Attacke:");
             int moveSelection;
             while (true) {
                 try {
                     moveSelection = Integer.parseInt(sc.next());
-                    if (moveSelection < 1 || moveSelection > topMoves.size()) {
+                    if (moveSelection < 1 || moveSelection > possibleMoves.size()) {
                         System.out.println("Falsche Eingabe. Bitte eine gültige Move-Nummer auswählen.");
                     } else {
                         break;
@@ -309,47 +393,40 @@ public class BackLogic {
                     System.out.println("Ungültige Eingabe. Bitte eine Zahl eingeben.");
                 }
             }
-            selectedMove = topMoves.get(moveSelection - 1);
+            selectedMove = possibleMoves.get(moveSelection - 1);
         } else {
-            selectedMove = topMoves.get(random.nextInt(topMoves.size()));
+            selectedMove = possibleMoves.get(random.nextInt(possibleMoves.size()));
         }
 
         System.out.println(attacker.getName() + " greift " + defender.getName() + " mit " + selectedMove.getName() + " an!");
 
         if (random.nextInt(100) < selectedMove.getAccuracy()) {
-
-            // Hier werden die Typen des Angreifers und des Verteidigers abgefragt bis jetzt nur Typ1
             String attackType = attacker.getTyp1();
             String defenseType = defender.getTyp1();
             String attackType2 = attacker.getTyp2();
             String defenseType2 = defender.getTyp2();
 
-            // Denn Faktor bestimmen
             double factor = 1.0;
             if (effectivityMap.containsKey(attackType) && effectivityMap.get(attackType).containsKey(defenseType)) {
                 factor = effectivityMap.get(attackType).get(defenseType);
             }
-            if (attackType2 != null && !attackType2.isEmpty()){
+            if (attackType2 != null && !attackType2.isEmpty()) {
                 if (effectivityMap.containsKey(attackType2) && effectivityMap.get(attackType2).containsKey(defenseType)) {
-                    factor = factor * effectivityMap.get(attackType2).get(defenseType);
+                    factor *= effectivityMap.get(attackType2).get(defenseType);
                 }
             }
-            if (defenseType2 != null && !defenseType2.isEmpty()){
+            if (defenseType2 != null && !defenseType2.isEmpty()) {
                 if (effectivityMap.containsKey(attackType) && effectivityMap.get(attackType).containsKey(defenseType2)) {
-                    factor = factor * effectivityMap.get(attackType).get(defenseType2);
+                    factor *= effectivityMap.get(attackType).get(defenseType2);
                 }
-                if (attackType2 != null && !attackType2.isEmpty()){
+                if (attackType2 != null && !attackType2.isEmpty()) {
                     if (effectivityMap.containsKey(attackType2) && effectivityMap.get(attackType2).containsKey(defenseType2)) {
-                        factor = factor * effectivityMap.get(attackType2).get(defenseType2);
+                        factor *= effectivityMap.get(attackType2).get(defenseType2);
                     }
                 }
             }
 
-
-
-
-
-            System.out.println("Faktor: " + factor); // Wieder weck machen
+            System.out.println("Faktor: " + factor); // Debug-Ausgabe
             int damage = (int) ((attacker.getAttack() + selectedMove.getDamage() - defender.getDefense()) * factor);
 
             if (damage < 0) damage = 0;
