@@ -1,5 +1,5 @@
 public class Moves {
-
+// Klasse Moves wird erstellt
     private Integer id;
     private String Name;
     private Integer Damage;
@@ -64,7 +64,7 @@ public class Moves {
     private String Type;
     private Integer learned_on_level;
 
-    public Moves(Integer _id, String _Name, Integer _Damage, Integer max_usages, Integer _accuracy, String _Type){
+    public Moves(Integer _id, String _Name, Integer _Damage, Integer max_usages, Integer _accuracy, String _Type){ // Konstruktor der Klasse Moves wird erstellt
         this.id = _id;
         this.Name = _Name;
         this.Damage = _Damage;

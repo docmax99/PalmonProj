@@ -7,13 +7,14 @@ import java.util.*;
 public class CSVreader {
 
 
-
-    private String relativePath_palmon = "src/CSVinput/palmon.csv";
+    // Pfadangaben zu den relativemPfad CSV-Dateien
+    private String relativePath_palmon = "src/CSVinput/palmon.csv";//
     private String relativePath_moves = "src/CSVinput/moves.csv";
     private String relativePath_palmon_move = "src/CSVinput/palmon_move.csv";
     private String relativePath_effectivity = "src/CSVinput/effectivity.csv";
 
-    private final Path absolutePath_palmon = Paths.get(relativePath_palmon).toAbsolutePath();
+    // Pfadangaben zu den absoluten Pfad CSV-Dateien
+    private final Path absolutePath_palmon = Paths.get(relativePath_palmon).toAbsolutePath(); // Pfadangabe wird in absoluten Pfad umgewandelt
     private final Path absolutePath_moves = Paths.get(relativePath_moves).toAbsolutePath();
     private final Path absolutePath_palmon_move = Paths.get(relativePath_palmon_move).toAbsolutePath();
     private final Path absolutePath_effectivity = Paths.get(relativePath_effectivity).toAbsolutePath();
@@ -40,25 +41,25 @@ public class CSVreader {
 
 
 
-    public static List<Palmon> ladePalmonsAusCsv(String path) {
-        List<Palmon> registerderPalmonsList = new ArrayList<>();
-        String relativePath_palmon = "CSVinput/palmon.csv";
-        Path file = Paths.get(relativePath_palmon).toAbsolutePath();
+    public static List<Palmon> ladePalmonsAusCsv(String path) { // Methode ladePalmonsAusCsv wird erstellt
+        List<Palmon> registerderPalmonsList = new ArrayList<>(); // Liste registerderPalmonsList wird erstellt
+        String relativePath_palmon = "CSVinput/palmon.csv"; // Pfadangabe zu der CSV-Datei palmon.csv
+        Path file = Paths.get(relativePath_palmon).toAbsolutePath(); // Pfadangabe wird in absoluten Pfad umgewandelt
 
 
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader(path));
-            br.readLine();
+            BufferedReader br = new BufferedReader(new FileReader(path)); // BufferedReader wird erstellt
+            br.readLine(); // erste Zeile wird übersprungen
             String line;
-            while ((line = br.readLine()) != null) {
-                String[] values = line.split(";");
+            while ((line = br.readLine()) != null) { // solange die Zeile nicht leer ist
+                String[] values = line.split(";"); // Zeile wird anhand des Semikolons getrennt
 
-                if (values.length >= 10) {
+                if (values.length >= 10) { // wenn die Länge der Werte größer oder gleich 10 ist
                     try {
-                        Palmon registerderPalmons = new Palmon(Integer.parseInt(values[0]), values[1], Integer.parseInt(values[2]), Integer.parseInt(values[3]), values[4], values[5], Integer.parseInt(values[6]), Integer.parseInt(values[7]), Integer.parseInt(values[8]), Integer.parseInt(values[9]));
-                        registerderPalmonsList.add(registerderPalmons);
-                    } catch (NumberFormatException e) {
+                        Palmon registerderPalmons = new Palmon(Integer.parseInt(values[0]), values[1], Integer.parseInt(values[2]), Integer.parseInt(values[3]), values[4], values[5], Integer.parseInt(values[6]), Integer.parseInt(values[7]), Integer.parseInt(values[8]), Integer.parseInt(values[9])); //Unsere Palmon werden hier erschaffen wie es einst Satoshi Tajiri tat
+                        registerderPalmonsList.add(registerderPalmons); // Palmon wird der Liste hinzugefügt
+                    } catch (NumberFormatException e) { // Fehlerbehandlung
 
                         System.err.println("Fehler beim persen einer Zahl " + e.getMessage());
                     }
@@ -66,11 +67,11 @@ public class CSVreader {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Fehlerbehandlung
         }
-        return registerderPalmonsList;
+        return registerderPalmonsList; // Liste wird zurückgegeben
     }
-
+    // Das gleiche wie bei ladePalmonsAusCsv nur für Moves
     public static List<Moves> ladeMovesAusCsv(String path){
         List<Moves> registerderMovesList =new ArrayList<>();
         try{
@@ -133,8 +134,8 @@ public class CSVreader {
 
                 if (values.length >= 3){
                     try {
-                        String damage_FactorString = values[2].replace("%","");
-                        int damageFactor = Integer.parseInt(damage_FactorString);
+                        String damage_FactorString = values[2].replace("%",""); // Hier ist es ein Kleinbisschen anders da wir das Prozentzeichen entfernen
+                        int damageFactor = Integer.parseInt(damage_FactorString); // und dann die Zahl parsen
 
                         Effectivity registerderEffectivity = new Effectivity(values[0], values[1], damageFactor);
                         registerderEffectivityList.add(registerderEffectivity);
@@ -150,6 +151,7 @@ public class CSVreader {
         }
         return registerderEffectivityList;
     }
+    // Das war der CSVreader hoffe meine Misserablen Kommentare haben geholfen
 
 
 

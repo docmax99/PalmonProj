@@ -1,4 +1,4 @@
-public class Palmon_move {
+public class Palmon_move { // Klasse Palmon_move wird erstellt
 
     public Integer getPalmon_id() {
         return palmon_id;
@@ -29,7 +29,7 @@ public class Palmon_move {
     private Integer learned_on_level;
 
 
-    public Palmon_move(Integer palmon_id, Integer move_id, Integer learned_on_level){
+    public Palmon_move(Integer palmon_id, Integer move_id, Integer learned_on_level){ // Konstruktor der Klasse Palmon_move wird erstellt
         this.palmon_id = palmon_id;
         this.move_id = move_id;
         this.learned_on_level = learned_on_level;

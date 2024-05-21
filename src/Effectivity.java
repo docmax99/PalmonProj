@@ -1,5 +1,5 @@
 public class Effectivity {
-
+// Klasse Effectivity wird erstellt
 
 
     public String getInitial_type() {
@@ -30,7 +30,7 @@ public class Effectivity {
     private String target_type;
     private Integer damage_factor;
 
-    public Effectivity(String initial_type, String target_type, Integer damage_factor){
+    public Effectivity(String initial_type, String target_type, Integer damage_factor){ // Konstruktor der Klasse Effectivity wird erstellt
         this.initial_type = initial_type;
         this.target_type = target_type;
         this.damage_factor = damage_factor;

@@ -1,7 +1,7 @@
 import java.util.Random;
 
 public class Palmon {
-
+// Klasse Palmon wird erstellt
 
 
     public Integer getId() {
@@ -104,7 +104,7 @@ public class Palmon {
     private Integer speed;
     private Integer level;
 
-    public Palmon(Integer _id, String _name, Integer _height, Integer _weight, String _Typ1, String _Typ2, Integer _hp, Integer _attack, Integer _defense, Integer _speed){
+    public Palmon(Integer _id, String _name, Integer _height, Integer _weight, String _Typ1, String _Typ2, Integer _hp, Integer _attack, Integer _defense, Integer _speed){ // Konstruktor der Klasse Palmon wird erstellt
 
         this.id = _id;
         this.Name = _name;
